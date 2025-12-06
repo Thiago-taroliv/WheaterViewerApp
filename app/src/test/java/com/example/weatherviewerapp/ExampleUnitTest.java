@@ -1,4 +1,4 @@
-package com.example.wheaterviewerapp;
+package com.example.weatherviewerapp;
 
 import org.junit.Test;
 

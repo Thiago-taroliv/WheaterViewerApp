@@ -1,4 +1,4 @@
-package com.example.wheaterviewerapp;
+package com.example.weatherviewerapp;
 
 import android.content.Context;
 import android.content.SharedPreferences; // Import para salvar dados
@@ -10,7 +10,7 @@ import android.widget.EditText;
 import android.widget.ImageButton; // Import do botão correto
 import android.widget.ListView;
 import android.widget.ProgressBar; // Import da barra de progresso
-
+import com.example.weatherviewerapp.R;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 

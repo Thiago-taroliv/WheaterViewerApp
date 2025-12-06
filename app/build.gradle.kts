@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.wheaterviewerapp"
+    namespace = "com.example.weatherviewerapp"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.wheaterviewerapp"
+        applicationId = "com.example.weatherviewerapp"
         minSdk = 23
         targetSdk = 36
         versionCode = 1

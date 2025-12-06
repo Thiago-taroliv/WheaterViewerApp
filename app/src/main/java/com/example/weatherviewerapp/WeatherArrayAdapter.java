@@ -1,4 +1,4 @@
-package com.example.wheaterviewerapp;
+package com.example.weatherviewerapp;
 
 import android.content.Context;
 import android.graphics.Typeface; // Import necessário para o negrito
