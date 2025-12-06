@@ -42,16 +42,19 @@
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- BOTÃO DE BUSCA -->
-        <!-- BOTÃO DE BUSCA -->
         <ImageButton
             android:id="@+id/fab"
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:layout_margin="8dp"
+            android:elevation="12dp"
             android:background="@drawable/circular_background"
             android:contentDescription="Buscar"
             android:src="@android:drawable/ic_menu_send"
-            app:tint="#FFFFFF"  />
+            android:scaleType="centerInside"
+            android:outlineProvider="background"
+            app:tint="#FFFFFF" />
+
 
 
     </LinearLayout>

@@ -1,18 +1,19 @@
 package com.example.wheaterviewerapp;
 
 import android.content.Context;
+import android.content.SharedPreferences; // Import para salvar dados
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageButton; // Import do botão correto
 import android.widget.ListView;
+import android.widget.ProgressBar; // Import da barra de progresso
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
@@ -29,52 +30,61 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Lista de objetos Weather (agora adaptados para o trabalho)
     private List<Weather> weatherList = new ArrayList<>();
-
-    // O adaptador que liga os dados à ListView
     private WeatherArrayAdapter weatherArrayAdapter;
-
-    // A ListView da tela
     private ListView weatherListView;
+
+    // Variável para controlar o Loading
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Configura a Toolbar
+        // Configura a Toolbar com verificação de segurança
         Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
 
-        // Configura a ListView
+        // Conecta os elementos da tela às variáveis
         weatherListView = findViewById(R.id.weatherListView);
+        progressBar = findViewById(R.id.progressBar); // Conecta o Loading do XML
+
         weatherArrayAdapter = new WeatherArrayAdapter(this, weatherList);
         weatherListView.setAdapter(weatherArrayAdapter);
 
-        // Configura o Botão Flutuante (FAB)
-        // Importante: Se aparecer vermelho, aperte Alt+Enter para importar o ImageButton
+        // Configura campo de texto e recupera última cidade salva
+        EditText locationEditText = findViewById(R.id.locationEditText);
+        SharedPreferences prefs = getSharedPreferences("WeatherApp", MODE_PRIVATE);
+        String lastCity = prefs.getString("last_city", ""); // Pega a última cidade ou vazio
+        locationEditText.setText(lastCity);
+
+        // Configura o Botão
         ImageButton fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Pega o texto digitado (Cidade)
-                EditText locationEditText = findViewById(R.id.locationEditText);
                 String city = locationEditText.getText().toString();
 
                 if (city.isEmpty()) {
-                     Snackbar.make(findViewById(R.id.main), 
-                         "Por favor, digite uma cidade", Snackbar.LENGTH_LONG).show();
-                     return;
+                    Snackbar.make(findViewById(R.id.main),
+                            "Por favor, digite uma cidade", Snackbar.LENGTH_LONG).show();
+                    return;
                 }
 
-                // Cria a URL no formato exigido pelo Professor
                 URL url = createURL(city);
 
-                // Se a URL for válida, esconde teclado e inicia o download
                 if (url != null) {
                     dismissKeyboard(locationEditText);
+
+                    // Salva a cidade para a próxima vez
+                    SharedPreferences.Editor editor = getSharedPreferences("WeatherApp", MODE_PRIVATE).edit();
+                    editor.putString("last_city", city);
+                    editor.apply();
+
                     GetWeatherTask getLocalWeatherTask = new GetWeatherTask();
                     getLocalWeatherTask.execute(url);
                 } else {
@@ -85,41 +95,39 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Esconde o teclado virtual
     private void dismissKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(
-                Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    // -------------------------------------------------------------------------
-    // MUDANÇA CRÍTICA 1: Montagem da URL conforme o Trabalho
-    // Padrão: .../api/weather?city=Passos,MG,BR&days=7&APPID=...
-    // -------------------------------------------------------------------------
     private URL createURL(String city) {
         String apiKey = getString(R.string.api_key);
         String baseUrl = getString(R.string.web_service_url);
 
         try {
-            // Codifica a cidade para URL (ex: "São Paulo" vira "S%C3%A3o+Paulo")
             String urlString = baseUrl + "?city=" + URLEncoder.encode(city, "UTF-8")
-                    + "&days=7" // Valor fixo conforme permitido nas orientações
-                    + "&APPID=" + apiKey;
-
+                    + "&days=7&APPID=" + apiKey;
             return new URL(urlString);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null; // URL inválida
+        return null;
     }
 
-    // -------------------------------------------------------------------------
-    // AsyncTask: Realiza a conexão em segundo plano (fundo)
-    // -------------------------------------------------------------------------
+    // --- TAREFA ASSÍNCRONA (AQUI ESTÁ A LÓGICA DO LOADING) ---
     private class GetWeatherTask extends AsyncTask<URL, Void, JSONObject> {
 
+        // 1. Antes de baixar: MOSTRA LOADING, ESCONDE LISTA
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+            if (weatherListView != null) weatherListView.setVisibility(View.GONE);
+        }
+
+        // 2. Durante (Baixa os dados)
         @Override
         protected JSONObject doInBackground(URL... params) {
             HttpURLConnection connection = null;
@@ -137,12 +145,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     return new JSONObject(builder.toString());
-                } else {
-                    // Erro no servidor (ex: 404, 500)
-                    return null;
                 }
             } catch (Exception e) {
-                e.printStackTrace(); // Erro de conexão
+                e.printStackTrace();
             } finally {
                 if (connection != null) {
                     connection.disconnect();
@@ -151,12 +156,16 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
+        // 3. Depois de baixar: ESCONDE LOADING, MOSTRA LISTA
         @Override
         protected void onPostExecute(JSONObject weather) {
+            if (progressBar != null) progressBar.setVisibility(View.GONE);
+            if (weatherListView != null) weatherListView.setVisibility(View.VISIBLE);
+
             if (weather != null) {
-                convertJSONtoArrayList(weather); // Processa os dados
-                weatherArrayAdapter.notifyDataSetChanged(); // Atualiza a lista
-                weatherListView.smoothScrollToPosition(0); // Rola para o topo
+                convertJSONtoArrayList(weather);
+                weatherArrayAdapter.notifyDataSetChanged();
+                weatherListView.smoothScrollToPosition(0);
             } else {
                 Snackbar.make(findViewById(R.id.main),
                         R.string.connect_error, Snackbar.LENGTH_LONG).show();
@@ -164,40 +173,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // MUDANÇA CRÍTICA 2: Processamento do JSON do Professor
-    // Estrutura esperada:
-    // {
-    //   "city": "...",
-    //   "days": [ { "date": "...", "minTempC": 20, ... }, ... ]
-    // }
-    // -------------------------------------------------------------------------
     private void convertJSONtoArrayList(JSONObject forecast) {
-        weatherList.clear(); // Limpa dados antigos
-
+        weatherList.clear();
         try {
-            // A lista agora chama "days" (no OpenWeatherMap chamava "list")
             JSONArray list = forecast.getJSONArray("days");
-
-            // Loop para cada dia da previsão
             for (int i = 0; i < list.length(); ++i) {
                 JSONObject day = list.getJSONObject(i);
 
-                // Extraindo dados conforme os nomes exatos do JSON do professor
                 String date = day.getString("date");
                 double minTemp = day.getDouble("minTempC");
                 double maxTemp = day.getDouble("maxTempC");
                 double humidity = day.getDouble("humidity");
                 String description = day.getString("description");
-                String icon = day.getString("icon"); // É um Emoji
+                String icon = day.getString("icon");
 
-                // Adiciona na lista usando nosso construtor adaptado
                 weatherList.add(new Weather(
                         date, minTemp, maxTemp, humidity, description, icon));
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            // Opcional: Mostrar erro de parse
         }
     }
 }

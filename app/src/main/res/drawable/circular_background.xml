@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval">
-    <!-- Isso pega a cor roxa padrão do seu tema -->
-    <solid android:color="?attr/colorPrimary"/>
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Camada de Sombra Artificial (Um círculo preto maior e transparente) -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#33000000"/> <!-- Preto transparente -->
+            <padding
+                android:bottom="2dp"
+                android:left="2dp"
+                android:right="2dp"
+                android:top="2dp"/>
+        </shape>
+    </item>
+
+    <!-- O Botão em si -->
+    <item android:bottom="2dp" android:right="2dp">
+        <shape android:shape="oval">
+            <solid android:color="#4C8EFF"/> <!-- Sua cor Azul Claro -->
+            <!-- Borda fina para destacar no fundo preto -->
+            <stroke android:width="1dp" android:color="#80FFFFFF"/>
+        </shape>
+    </item>
+</layer-list>

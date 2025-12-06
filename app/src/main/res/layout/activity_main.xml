@@ -6,24 +6,32 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
+    <!-- MUDANÇA: Adicionei app:elevation="8dp" para criar a sombra projetada no conteúdo -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#4C8EFF"
+        android:paddingTop="25dp"
+        android:elevation="12dp"
+        android:outlineProvider="bounds"
+        android:stateListAnimator="@null"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
+        <!-- Fundo Azul Claro aqui também para garantir uniformidade -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="#4C8EFF"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- AQUI ESTÁ O SEGREDO: Apenas chamamos o seu content_main -->
+
+
+
     <include layout="@layout/content_main" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

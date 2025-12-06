@@ -6,7 +6,7 @@
         <item name="colorPrimary">@color/primary_blue</item>
         
         <!-- Cor da Barra de Status (Aquela barra do relógio/bateria) -->
-        <item name="android:statusBarColor">@color/dark_blue</item>
+        <item name="android:statusBarColor">#4C8EFF</item>
         
         <!-- Cor dos textos da barra de status (False = Texto Branco, True = Texto Preto) -->
         <!-- Como o fundo é azul escuro, queremos texto branco -->
