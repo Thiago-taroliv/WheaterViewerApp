@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout 
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -22,19 +23,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Aqui incluímos o conteúdo principal (que criaremos no passo 4) -->
+    <!-- AQUI ESTÁ O SEGREDO: Apenas chamamos o seu content_main -->
     <include layout="@layout/content_main" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginTop="90dp" 
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/hint_text"
-        android:src="@android:drawable/ic_input_add" /> 
-        <!-- Usei um ícone padrão do Android por enquanto -->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

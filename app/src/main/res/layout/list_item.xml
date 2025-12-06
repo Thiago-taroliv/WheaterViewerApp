@@ -3,39 +3,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:padding="12dp"
+    android:gravity="center_vertical">
 
-    <!-- MUDANÇA AQUI: Trocamos ImageView por TextView para exibir o Emoji -->
+    <!-- Ícone (Emoji) -->
     <TextView
         android:id="@+id/conditionIconView"
         android:layout_width="50dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:textSize="30sp"
-        android:text="☀" 
-        android:contentDescription="@string/weather_condition_image" />
+        android:textSize="40sp"
+        android:text="☀"
+        android:textColor="#FFFFFF"
+        android:layout_marginEnd="12dp" />
 
     <GridLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:columnCount="3"
         android:rowCount="2"
-        android:useDefaultMargins="true">
+        android:useDefaultMargins="false">
 
+        <!-- TÍTULO (DIA DA SEMANA) - Cor Branca e Maior -->
         <TextView
             android:id="@+id/dayTextView"
             android:layout_column="0"
             android:layout_columnSpan="3"
             android:layout_gravity="fill_horizontal"
             android:text="Day"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textSize="18sp"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
 
+        <!-- DETALHES (Temperaturas) - Cor Cinza Claro -->
         <TextView
             android:id="@+id/lowTextView"
             android:layout_row="1"
             android:layout_column="0"
             android:layout_columnWeight="1"
+            android:textColor="#B0BEC5"
+            android:textSize="14sp"
             android:text="Low" />
 
         <TextView
@@ -43,6 +52,8 @@
             android:layout_row="1"
             android:layout_column="1"
             android:layout_columnWeight="1"
+            android:textColor="#B0BEC5"
+            android:textSize="14sp"
             android:text="High" />
 
         <TextView
@@ -50,6 +61,8 @@
             android:layout_row="1"
             android:layout_column="2"
             android:layout_columnWeight="1"
+            android:textColor="#B0BEC5"
+            android:textSize="14sp"
             android:text="Humidity" />
 
     </GridLayout>

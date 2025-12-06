@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,7 +53,9 @@ public class MainActivity extends AppCompatActivity {
         weatherListView.setAdapter(weatherArrayAdapter);
 
         // Configura o Botão Flutuante (FAB)
-        FloatingActionButton fab = findViewById(R.id.fab);
+        // Importante: Se aparecer vermelho, aperte Alt+Enter para importar o ImageButton
+        ImageButton fab = findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
