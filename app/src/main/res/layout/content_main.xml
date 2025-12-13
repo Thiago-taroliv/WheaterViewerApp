@@ -9,7 +9,6 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main">
 
-    <!-- CONTAINER DO TOPO: INPUT + BOTÃO -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,16 +16,16 @@
         android:gravity="center_vertical"
         android:layout_marginBottom="10dp">
 
-        <!-- CAIXA DE TEXTO (Cores Forçadas para Contraste) -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="10dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:textColorHint="#FFFFFF"
-            app:hintTextColor="#80D8FF"
-            app:boxStrokeColor="#80D8FF"
+
+            android:textColorHint="@color/input_accent"
+            app:hintTextColor="@color/input_accent"
+            app:boxStrokeColor="@color/input_accent"
             app:boxStrokeWidth="2dp"
             app:boxStrokeWidthFocused="3dp">
 
@@ -35,7 +34,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_text"
-                android:textColor="#FFFFFF"
+
+                android:textColor="@color/text_typing"
+                android:textColorHint="@color/input_accent"
+
                 android:textSize="16sp"
                 android:inputType="text"
                 android:maxLines="1"
@@ -55,11 +57,8 @@
             android:outlineProvider="background"
             app:tint="#FFFFFF" />
 
-
-
     </LinearLayout>
 
-    <!-- BARRA DE CARREGAMENTO -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -68,7 +67,6 @@
         android:visibility="gone"
         android:layout_marginTop="20dp"/>
 
-    <!-- LISTA DE PREVISÃO -->
     <ListView
         android:id="@+id/weatherListView"
         android:layout_width="match_parent"

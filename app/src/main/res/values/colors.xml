@@ -2,22 +2,12 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    
-    <!-- Azul Escuro Principal (Para a Toolbar e Botões) -->
     <color name="primary_blue">#4C8EFF</color>
-    
-    <!-- Azul Mais Escuro (Para a Barra de Status/Notificações) -->
-    <color name="dark_blue">#4C8EFF</color>
-
-    <!-- Azul Claro/Ciano (Para a BORDA e o LABEL da caixa de texto) -->
+    <color name="primary_dark">#005ECB</color>
+    <color name="app_background">#FFFFFF</color>
+    <color name="text_primary">#000000</color>
+    <color name="text_typing">#333333</color>
+    <color name="card_background">#F5F5F5</color>
+    <color name="text_secondary">#545454</color>
     <color name="input_accent">#4C8EFF</color>
-
-    <!-- Cor do texto digitado (Branco gelo para contraste máximo) -->
-    <color name="text_typing">#ABBDC1</color>
-    
-    <!-- Azul de Destaque (Para detalhes menores, se precisar) -->
-    <color name="accent_blue">#534BAE</color>
-    
-    <!-- Cor de fundo da tela (Para o modo escuro ficar agradável) -->
-    <color name="background_dark">#282828</color>
 </resources>

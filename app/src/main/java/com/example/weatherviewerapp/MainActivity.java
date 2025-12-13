@@ -1,17 +1,21 @@
 package com.example.weatherviewerapp;
 
 import android.content.Context;
-import android.content.SharedPreferences; // Import para salvar dados
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageButton; // Import do botão correto
+import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ProgressBar; // Import da barra de progresso
-import com.example.weatherviewerapp.R;
+import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -33,66 +37,106 @@ public class MainActivity extends AppCompatActivity {
     private List<Weather> weatherList = new ArrayList<>();
     private WeatherArrayAdapter weatherArrayAdapter;
     private ListView weatherListView;
-
-    // Variável para controlar o Loading
     private ProgressBar progressBar;
+
+    private static final String PREFS_NAME = "WeatherApp";
+    private static final String KEY_DARK_MODE = "is_dark_mode";
+    private static final String KEY_LAST_CITY = "last_city";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setupTheme();
+
         setContentView(R.layout.activity_main);
 
-        // Configura a Toolbar com verificação de segurança
         Toolbar toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
 
-        // Conecta os elementos da tela às variáveis
         weatherListView = findViewById(R.id.weatherListView);
-        progressBar = findViewById(R.id.progressBar); // Conecta o Loading do XML
-
+        progressBar = findViewById(R.id.progressBar);
         weatherArrayAdapter = new WeatherArrayAdapter(this, weatherList);
         weatherListView.setAdapter(weatherArrayAdapter);
 
-        // Configura campo de texto e recupera última cidade salva
         EditText locationEditText = findViewById(R.id.locationEditText);
-        SharedPreferences prefs = getSharedPreferences("WeatherApp", MODE_PRIVATE);
-        String lastCity = prefs.getString("last_city", ""); // Pega a última cidade ou vazio
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String lastCity = prefs.getString(KEY_LAST_CITY, "");
         locationEditText.setText(lastCity);
 
-        // Configura o Botão
         ImageButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            String city = locationEditText.getText().toString();
+            if (city.isEmpty()) {
+                Snackbar.make(findViewById(R.id.main), "Por favor, digite uma cidade", Snackbar.LENGTH_LONG).show();
+                return;
+            }
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String city = locationEditText.getText().toString();
+            URL url = createURL(city);
+            if (url != null) {
+                dismissKeyboard(locationEditText);
 
-                if (city.isEmpty()) {
-                    Snackbar.make(findViewById(R.id.main),
-                            "Por favor, digite uma cidade", Snackbar.LENGTH_LONG).show();
-                    return;
-                }
+                prefs.edit().putString(KEY_LAST_CITY, city).apply();
 
-                URL url = createURL(city);
-
-                if (url != null) {
-                    dismissKeyboard(locationEditText);
-
-                    // Salva a cidade para a próxima vez
-                    SharedPreferences.Editor editor = getSharedPreferences("WeatherApp", MODE_PRIVATE).edit();
-                    editor.putString("last_city", city);
-                    editor.apply();
-
-                    GetWeatherTask getLocalWeatherTask = new GetWeatherTask();
-                    getLocalWeatherTask.execute(url);
-                } else {
-                    Snackbar.make(findViewById(R.id.main),
-                            R.string.invalid_url, Snackbar.LENGTH_LONG).show();
-                }
+                GetWeatherTask getLocalWeatherTask = new GetWeatherTask();
+                getLocalWeatherTask.execute(url);
+            } else {
+                Snackbar.make(findViewById(R.id.main), R.string.invalid_url, Snackbar.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void setupTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean(KEY_DARK_MODE, false);
+
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        MenuItem item = menu.findItem(R.id.action_theme);
+        if (item != null) {
+            int currentMode = AppCompatDelegate.getDefaultNightMode();
+            if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+                item.setTitle("Modo Claro");
+                item.setIcon(R.drawable.ic_sun);
+            } else {
+                item.setTitle("Modo Escuro");
+                item.setIcon(R.drawable.ic_moon);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_theme) {
+            toggleTheme();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleTheme() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isCurrentlyDark = (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES);
+
+        if (isCurrentlyDark) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            prefs.edit().putBoolean(KEY_DARK_MODE, false).apply();
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            prefs.edit().putBoolean(KEY_DARK_MODE, true).apply();
+        }
     }
 
     private void dismissKeyboard(View view) {
@@ -107,19 +151,34 @@ public class MainActivity extends AppCompatActivity {
         String baseUrl = getString(R.string.web_service_url);
 
         try {
-            String urlString = baseUrl + "?city=" + URLEncoder.encode(city, "UTF-8")
-                    + "&days=7&APPID=" + apiKey;
-            return new URL(urlString);
+            return new URL(baseUrl + "?city=" + URLEncoder.encode(city, "UTF-8") + "&days=7&APPID=" + apiKey);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    // --- TAREFA ASSÍNCRONA (AQUI ESTÁ A LÓGICA DO LOADING) ---
-    private class GetWeatherTask extends AsyncTask<URL, Void, JSONObject> {
+    private void convertJSONtoArrayList(JSONObject forecast) {
+        weatherList.clear();
+        try {
+            JSONArray list = forecast.getJSONArray("days");
+            for (int i = 0; i < list.length(); ++i) {
+                JSONObject day = list.getJSONObject(i);
+                weatherList.add(new Weather(
+                        day.getString("date"),
+                        day.getDouble("minTempC"),
+                        day.getDouble("maxTempC"),
+                        day.getDouble("humidity"),
+                        day.getString("description"),
+                        day.getString("icon")
+                ));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-        // 1. Antes de baixar: MOSTRA LOADING, ESCONDE LISTA
+    private class GetWeatherTask extends AsyncTask<URL, Void, JSONObject> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -127,36 +186,27 @@ public class MainActivity extends AppCompatActivity {
             if (weatherListView != null) weatherListView.setVisibility(View.GONE);
         }
 
-        // 2. Durante (Baixa os dados)
         @Override
         protected JSONObject doInBackground(URL... params) {
             HttpURLConnection connection = null;
             try {
                 connection = (HttpURLConnection) params[0].openConnection();
-                int response = connection.getResponseCode();
-
-                if (response == HttpURLConnection.HTTP_OK) {
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     StringBuilder builder = new StringBuilder();
-                    try (BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(connection.getInputStream()))) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                         String line;
-                        while ((line = reader.readLine()) != null) {
-                            builder.append(line);
-                        }
+                        while ((line = reader.readLine()) != null) builder.append(line);
                     }
                     return new JSONObject(builder.toString());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
+                if (connection != null) connection.disconnect();
             }
             return null;
         }
 
-        // 3. Depois de baixar: ESCONDE LOADING, MOSTRA LISTA
         @Override
         protected void onPostExecute(JSONObject weather) {
             if (progressBar != null) progressBar.setVisibility(View.GONE);
@@ -167,31 +217,8 @@ public class MainActivity extends AppCompatActivity {
                 weatherArrayAdapter.notifyDataSetChanged();
                 weatherListView.smoothScrollToPosition(0);
             } else {
-                Snackbar.make(findViewById(R.id.main),
-                        R.string.connect_error, Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.main), R.string.connect_error, Snackbar.LENGTH_LONG).show();
             }
-        }
-    }
-
-    private void convertJSONtoArrayList(JSONObject forecast) {
-        weatherList.clear();
-        try {
-            JSONArray list = forecast.getJSONArray("days");
-            for (int i = 0; i < list.length(); ++i) {
-                JSONObject day = list.getJSONObject(i);
-
-                String date = day.getString("date");
-                double minTemp = day.getDouble("minTempC");
-                double maxTemp = day.getDouble("maxTempC");
-                double humidity = day.getDouble("humidity");
-                String description = day.getString("description");
-                String icon = day.getString("icon");
-
-                weatherList.add(new Weather(
-                        date, minTemp, maxTemp, humidity, description, icon));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 }

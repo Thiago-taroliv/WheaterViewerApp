@@ -1,14 +1,7 @@
 <resources>
     <string name="app_name">WeatherViewer</string>
-
-    <!-- NOVA CHAVE DO PROFESSOR -->
     <string name="api_key">AgentWeather2024_a8f3b9c1d7e2f5g6h4i9j0k1l2m3n4o5p6</string>
-
-    <!-- NOVA URL DO PROFESSOR -->
-    <!-- Nota: Deixamos o ?city= no final para completar via código, mas a estrutura mudou um pouco.
-         Vamos ajustar a montagem da URL no Java depois. Aqui colocamos a base. -->
     <string name="web_service_url">http://agent-weathermap-env-env.eba-6pzgqekp.us-east-2.elasticbeanstalk.com/api/weather</string>
-
     <string name="invalid_url">Invalid URL</string>
     <string name="weather_condition_image">Weather Icon</string>
     <string name="high_temp">Max: %s</string>
